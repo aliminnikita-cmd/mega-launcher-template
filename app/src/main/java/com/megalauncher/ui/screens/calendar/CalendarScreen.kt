@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +48,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.megalauncher.LauncherApp
 import com.megalauncher.core.ui.theme.TextSecondary
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -78,17 +82,83 @@ fun CalendarScreen(
             .fillMaxSize()
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        Text(
-            "Календарь",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(Modifier.height(12.dp))
+        // Верхняя панель: месяц + иконки
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Outlined.CalendarMonth,
+                        contentDescription = null,
+                        tint = TextSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        SimpleDateFormat("LLLL", Locale("ru"))
+                            .format(Date(state.selectedDate))
+                            .replaceFirstChar { it.uppercase() },
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { /* TODO: уведомления */ }) {
+                Icon(Icons.Outlined.Notifications, contentDescription = null, tint = TextSecondary)
+            }
+            IconButton(onClick = { /* TODO: поиск */ }) {
+                Icon(Icons.Outlined.Search, contentDescription = null, tint = TextSecondary)
+            }
+        }
 
-        WeekStrip(selectedDate = state.selectedDate, onSelect = vm::selectDate)
         Spacer(Modifier.height(16.dp))
 
+        // Сетка календаря (используем WeekStrip как компактную версию, но с месяцами)
+        WeekStrip(selectedDate = state.selectedDate, onSelect = vm::selectDate)
+
+        Spacer(Modifier.height(16.dp))
+
+        // Секция "Сегодня"
+        val dateFmt = remember { SimpleDateFormat("d", Locale.getDefault()) }
+        val dayFmt = remember { SimpleDateFormat("EEEE", Locale("ru")) }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(16.dp)
+        ) {
+            Text("Сегодня", fontSize = 12.sp, color = TextSecondary)
+            Spacer(Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    dateFmt.format(Date(state.selectedDate)),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    dayFmt.format(Date(state.selectedDate)).replaceFirstChar { it.uppercase() },
+                    fontSize = 14.sp,
+                    color = TextSecondary,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // События
         if (!hasPermission) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
@@ -114,13 +184,16 @@ fun CalendarScreen(
 @Composable
 private fun WeekStrip(selectedDate: Long, onSelect: (Long) -> Unit) {
     val days = remember {
-        val base = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        val base = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
         }
+        // Показываем 7 дней начиная с текущей недели (пн-вс)
+        val dayOfWeek = base.get(java.util.Calendar.DAY_OF_WEEK)
+        base.add(java.util.Calendar.DAY_OF_MONTH, -(dayOfWeek - 2))
         List(7) { offset ->
-            val c = base.clone() as Calendar
-            c.add(Calendar.DAY_OF_MONTH, offset)
+            val c = base.clone() as java.util.Calendar
+            c.add(java.util.Calendar.DAY_OF_MONTH, offset)
             c.timeInMillis
         }
     }
@@ -141,18 +214,17 @@ private fun WeekStrip(selectedDate: Long, onSelect: (Long) -> Unit) {
                         if (isSelected) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.surface
                     )
-                    .clickable { onSelect(millis) }
-                    .padding(horizontal = 10.dp, vertical = 10.dp)
+                    .padding(horizontal = 8.dp, vertical = 10.dp)
             ) {
                 Text(
-                    dayFmt.format(Date(millis)).lowercase().take(3),
-                    fontSize = 11.sp,
+                    dayFmt.format(Date(millis)).lowercase().take(2),
+                    fontSize = 10.sp,
                     color = if (isSelected) MaterialTheme.colorScheme.onPrimary else TextSecondary
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     numFmt.format(Date(millis)),
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (isSelected) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurface
@@ -163,10 +235,10 @@ private fun WeekStrip(selectedDate: Long, onSelect: (Long) -> Unit) {
 }
 
 private fun isSameDay(a: Long, b: Long): Boolean {
-    val ca = Calendar.getInstance().apply { timeInMillis = a }
-    val cb = Calendar.getInstance().apply { timeInMillis = b }
-    return ca.get(Calendar.YEAR) == cb.get(Calendar.YEAR) &&
-            ca.get(Calendar.DAY_OF_YEAR) == cb.get(Calendar.DAY_OF_YEAR)
+    val ca = java.util.Calendar.getInstance().apply { timeInMillis = a }
+    val cb = java.util.Calendar.getInstance().apply { timeInMillis = b }
+    return ca.get(java.util.Calendar.YEAR) == cb.get(java.util.Calendar.YEAR) &&
+            ca.get(java.util.Calendar.DAY_OF_YEAR) == cb.get(java.util.Calendar.DAY_OF_YEAR)
 }
 
 @Composable
