@@ -51,6 +51,12 @@ fun HomeScreen(
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
 
+    // Обновляем погоду и события при каждом входе на экран
+    LaunchedEffect(Unit) {
+        vm.refreshWeather()
+        vm.refreshEvents()
+    }
+
     var now by remember { mutableStateOf(Calendar.getInstance().time) }
     LaunchedEffect(Unit) {
         while (true) {
