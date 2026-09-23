@@ -89,19 +89,21 @@ fun HomeScreen(
 
         Spacer(Modifier.height(8.dp))
 
+        val weather = state.weather
+        val weatherText = when {
+            state.weatherLoading -> "…"
+            weather != null -> "${weather.temperature.toInt()}° ${weather.description}"
+            else -> "—"
+        }
+
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             HomeCard(
                 modifier = Modifier
                     .weight(1f)
                     .clickable { vm.refreshWeather() },
                 title = "Погода",
-                value = when {
-                    state.weatherLoading -> "…"
-                    state.weather != null ->
-                        "${state.weather.temperature.toInt()}° ${state.weather.description}"
-                    else -> "—"
-                },
-                subtitle = state.weather?.city
+                value = weatherText,
+                subtitle = weather?.city
             )
             HomeCard(
                 modifier = Modifier.weight(1f),
