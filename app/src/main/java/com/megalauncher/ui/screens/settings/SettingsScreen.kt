@@ -59,6 +59,7 @@ import com.megalauncher.LauncherApp
 import com.megalauncher.core.ui.theme.TextSecondary
 import com.megalauncher.domain.model.AppInfo
 import com.megalauncher.ui.screens.car.BtPickerDialog
+import androidx.compose.material3.Checkbox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -266,15 +267,23 @@ private fun AppPickerDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { onPick(app.packageName) }
-                                .padding(vertical = 10.dp),
+                                .padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val bmp = remember(app.packageName) {
                                 app.icon.toBitmap(72, 72).asImageBitmap()
                             }
-                            Image(bmp, app.label, modifier = Modifier.size(28.dp))
-                            Spacer(Modifier.width(10.dp))
-                            Text(app.label, color = MaterialTheme.colorScheme.onSurface)
+                            Image(bmp, app.label, modifier = Modifier.size(32.dp))
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                app.label,
+                                modifier = Modifier.weight(1f),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Checkbox(
+                                checked = false,
+                                onCheckedChange = { onPick(app.packageName) }
+                            )
                         }
                     }
                 }
