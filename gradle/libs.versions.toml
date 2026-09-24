@@ -37,11 +37,12 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 markwon-core = { group = "io.noties.markwon", name = "core", version.ref = "markwon" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+compose-calendar = { group = "io.github.boguszpawlowski", name = "compose-calendar", version.ref = "composeCalendar" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-compose-calendar = { group = "io.github.boguszpawlowski", name = "compose-calendar", version.ref = "composeCalendar" }
+
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
