@@ -13,6 +13,7 @@ coil = "2.7.0"
 markwon = "4.6.2"
 okhttp = "4.12.0"
 kotlinxSerialization = "1.7.1"
+composeCalendar = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,4 +43,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-calendar = { group = "io.github.boguszpawlowski", name = "compose-calendar", version.ref = "composeCalendar" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
